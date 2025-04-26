@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // Import useEffect
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon, HeartPulse, Droplet, Activity } from 'lucide-react';
 import { z } from 'zod';
@@ -33,6 +33,7 @@ const formSchema = z.object({
   systolic: z.coerce.number().min(1, { message: 'Systolic pressure is required.' }).max(300),
   diastolic: z.coerce.number().min(1, { message: 'Diastolic pressure is required.' }).max(200),
   heartRate: z.coerce.number().min(1, { message: 'Heart rate is required.' }).max(250),
+  // Make timestamp optional initially to avoid hydration mismatch
   timestamp: z.date({ required_error: 'A date and time is required.' }),
 });
 
@@ -44,14 +45,34 @@ export function RecordForm({ onSave }: RecordFormProps) {
       systolic: undefined,
       diastolic: undefined,
       heartRate: undefined,
-      timestamp: new Date(),
+      timestamp: undefined, // Initialize as undefined to prevent hydration error
     },
   });
+
+  // Set default date only on the client after mount to prevent hydration mismatch
+  useEffect(() => {
+    if (!form.getValues('timestamp')) {
+      form.setValue('timestamp', new Date(), { shouldValidate: false, shouldDirty: false });
+    }
+    // Only run this effect once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array ensures it runs only once after mount
+
 
    // Popover state for date picker
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    // Ensure timestamp has a value before submitting (should be set by useEffect or user)
+    if (!values.timestamp) {
+        toast({
+            title: "Error",
+            description: "Please select a valid date and time.",
+            variant: "destructive",
+        });
+        return;
+    }
+
     const newRecord: RecordData = {
       id: Date.now().toString(),
       systolic: values.systolic,
@@ -60,7 +81,13 @@ export function RecordForm({ onSave }: RecordFormProps) {
       timestamp: values.timestamp.toISOString(),
     };
     onSave(newRecord);
-    form.reset(); // Reset form fields after successful save
+    // Reset form, keeping timestamp potentially as undefined until next mount effect
+    form.reset({
+        systolic: undefined,
+        diastolic: undefined,
+        heartRate: undefined,
+        timestamp: new Date(), // Reset to current time for next entry
+    });
     toast({
         title: "Record Saved",
         description: `BP: ${values.systolic}/${values.diastolic}, HR: ${values.heartRate}`,
@@ -83,7 +110,7 @@ export function RecordForm({ onSave }: RecordFormProps) {
                   <FormItem>
                     <FormLabel className="flex items-center"><Droplet className="mr-1 h-4 w-4 text-muted-foreground" /> Systolic (mmHg)</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="e.g. 120" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} />
+                      <Input type="number" placeholder="e.g. 120" {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : e.target.valueAsNumber)} value={field.value ?? ''}/>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -96,7 +123,7 @@ export function RecordForm({ onSave }: RecordFormProps) {
                   <FormItem>
                     <FormLabel className="flex items-center"><Droplet className="mr-1 h-4 w-4 text-muted-foreground"/> Diastolic (mmHg)</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="e.g. 80" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} />
+                     <Input type="number" placeholder="e.g. 80" {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : e.target.valueAsNumber)} value={field.value ?? ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -109,7 +136,7 @@ export function RecordForm({ onSave }: RecordFormProps) {
                   <FormItem>
                     <FormLabel className="flex items-center"><HeartPulse className="mr-1 h-4 w-4 text-muted-foreground" /> Heart Rate (BPM)</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="e.g. 70" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} />
+                      <Input type="number" placeholder="e.g. 70" {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : e.target.valueAsNumber)} value={field.value ?? ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -137,7 +164,7 @@ export function RecordForm({ onSave }: RecordFormProps) {
                           {field.value ? (
                             format(field.value, 'PPP p') // Format includes date and time
                           ) : (
-                            <span>Pick a date and time</span>
+                            <span>Pick a date and time</span> // Display placeholder initially
                           )}
                         </Button>
                       </FormControl>
@@ -149,31 +176,35 @@ export function RecordForm({ onSave }: RecordFormProps) {
                         onSelect={(date) => {
                           if (date) {
                             // Keep existing time if user only selects a date
-                            const current = field.value || new Date();
+                            const current = field.value || new Date(); // Use current state or new Date if undefined
                             date.setHours(current.getHours());
                             date.setMinutes(current.getMinutes());
                             date.setSeconds(current.getSeconds());
                             field.onChange(date);
                              setIsCalendarOpen(false); // Close popover after selecting
+                          } else {
+                            field.onChange(undefined); // Handle clearing the date
                           }
                         }}
-                        initialFocus
+                         initialFocus
                       />
-                      {/* Simple Time Input - replace with a proper time picker component if needed */}
                        <div className="p-3 border-t border-border">
-                         <Label htmlFor="time">Time</Label>
+                         <Label htmlFor="time-input">Time</Label>
                         <Input
-                            id="time"
+                            id="time-input"
                             type="time"
+                            // Use field value for default, fallback to current time if field.value is null/undefined
                             defaultValue={field.value ? format(field.value, 'HH:mm') : format(new Date(), 'HH:mm')}
                             onChange={(e) => {
                                 const [hours, minutes] = e.target.value.split(':').map(Number);
-                                const newDate = field.value || new Date();
+                                const newDate = field.value ? new Date(field.value) : new Date(); // Use field value or new Date if undefined
                                 newDate.setHours(hours);
                                 newDate.setMinutes(minutes);
-                                field.onChange(new Date(newDate)); // Create new Date object to trigger update
+                                field.onChange(newDate); // Trigger update with new Date object
                             }}
                             className="mt-1"
+                            // Disable time input if no date is selected yet
+                            disabled={!field.value}
                         />
                       </div>
                     </PopoverContent>
