@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { parseISO, startOfDay, endOfDay } from 'date-fns';
 import { Heart } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { RecordForm } from '@/components/record-form';
 import { RecordList } from '@/components/record-list';
@@ -19,6 +20,9 @@ const DEFAULT_THRESHOLDS: Thresholds = {
 };
 
 export default function Home() {
+  const t = useTranslations('HomePage');
+  const tToast = useTranslations('RecordList'); // Use translation for toast messages
+
   const [records, setRecords] = useLocalStorage<RecordData[]>('bp_records', []);
   const [thresholds, setThresholds] = useLocalStorage<Thresholds>(
     'bp_thresholds',
@@ -31,19 +35,21 @@ export default function Home() {
 
   const handleSaveRecord = useCallback((newRecord: RecordData) => {
     setRecords((prevRecords) => [newRecord, ...prevRecords]);
+    // Note: RecordForm handles its own success toast
   }, [setRecords]);
 
   const handleDeleteRecord = useCallback((id: string) => {
     setRecords((prevRecords) => prevRecords.filter((record) => record.id !== id));
     toast({
-        title: "Record Deleted",
-        description: "The record has been successfully removed.",
+        title: tToast('deleteSuccessTitle'),
+        description: tToast('deleteSuccessDescription'),
         variant: "destructive"
     });
-  }, [setRecords, toast]);
+  }, [setRecords, toast, tToast]);
 
   const handleUpdateThresholds = useCallback((newThresholds: Thresholds) => {
     setThresholds(newThresholds);
+    // Note: ThresholdSettings handles its own success toast
   }, [setThresholds]);
 
    const handleClearFilters = useCallback(() => {
@@ -86,10 +92,10 @@ export default function Home() {
     <main className="container mx-auto px-4 py-8 min-h-screen">
       <header className="text-center mb-12">
         <h1 className="text-4xl font-bold tracking-tight text-primary mb-2 flex items-center justify-center gap-2">
-            <Heart className="h-8 w-8 text-primary" /> HeartBeat Hub
+            <Heart className="h-8 w-8 text-primary" /> {t('title')}
         </h1>
         <p className="text-lg text-muted-foreground">
-          Your personal blood pressure and heart rate tracker.
+          {t('subtitle')}
         </p>
       </header>
 
@@ -122,4 +128,3 @@ export default function Home() {
     </main>
   );
 }
-

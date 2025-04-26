@@ -1,0 +1,63 @@
+{
+  "Metadata": {
+    "title": "HeartBeat Hub",
+    "description": "Track your blood pressure and heart rate readings."
+  },
+  "HomePage": {
+    "title": "HeartBeat Hub",
+    "subtitle": "Your personal blood pressure and heart rate tracker."
+  },
+  "RecordForm": {
+    "title": "Add New Record",
+    "systolicLabel": "Systolic (mmHg)",
+    "systolicPlaceholder": "e.g. 120",
+    "diastolicLabel": "Diastolic (mmHg)",
+    "diastolicPlaceholder": "e.g. 80",
+    "heartRateLabel": "Heart Rate (BPM)",
+    "heartRatePlaceholder": "e.g. 70",
+    "timestampLabel": "Date and Time",
+    "pickDateTime": "Pick a date and time",
+    "timeLabel": "Time",
+    "saveButton": "Save Record",
+    "systolicRequired": "Systolic pressure is required.",
+    "diastolicRequired": "Diastolic pressure is required.",
+    "heartRateRequired": "Heart rate is required.",
+    "timestampRequired": "A date and time is required.",
+    "saveSuccessTitle": "Record Saved",
+    "saveErrorTitle": "Error",
+    "saveErrorDescription": "Please select a valid date and time."
+  },
+  "RecordList": {
+    "noRecords": "No records found. Add a new record to get started!",
+    "highBadge": "High",
+    "deleteButtonLabel": "Delete record",
+    "deleteSuccessTitle": "Record Deleted",
+    "deleteSuccessDescription": "The record has been successfully removed.",
+    "unitMmhg": "mmHg",
+    "unitBpm": "BPM"
+  },
+  "FilterControls": {
+    "title": "Filter Records",
+    "thresholdSwitchLabel": "Show Only Over Threshold",
+    "startDateButton": "Start Date",
+    "endDateButton": "End Date",
+    "clearButton": "Clear Filters"
+  },
+  "ThresholdSettings": {
+    "buttonText": "Thresholds",
+    "dialogTitle": "Set Thresholds",
+    "dialogDescription": "Set the values above which readings will be highlighted.",
+    "systolicLabel": "Systolic (mmHg)",
+    "diastolicLabel": "Diastolic (mmHg)",
+    "heartRateLabel": "Heart Rate (BPM)",
+    "saveButton": "Save Changes",
+    "systolicRequired": "Systolic threshold required.",
+    "diastolicRequired": "Diastolic threshold required.",
+    "heartRateRequired": "Heart rate threshold required.",
+    "updateSuccessTitle": "Thresholds Updated"
+  },
+   "LocaleSwitcher": {
+    "placeholder": "Select language",
+    "locale": "{locale, select, en {English} tr {Türkçe} other {Unknown}}"
+  }
+}

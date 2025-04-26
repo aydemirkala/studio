@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react'; // Import useMemo
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Settings, Save, HeartPulse, Droplet } from 'lucide-react';
+import { useTranslations } from 'next-intl'; // Import useTranslations
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,15 +34,18 @@ interface ThresholdSettingsProps {
   onUpdateThresholds: (newThresholds: Thresholds) => void;
 }
 
-const formSchema = z.object({
-  systolic: z.coerce.number().min(1, { message: 'Systolic threshold required.' }).max(300),
-  diastolic: z.coerce.number().min(1, { message: 'Diastolic threshold required.' }).max(200),
-  heartRate: z.coerce.number().min(1, { message: 'Heart rate threshold required.' }).max(250),
-});
-
 export function ThresholdSettings({ thresholds, onUpdateThresholds }: ThresholdSettingsProps) {
+  const t = useTranslations('ThresholdSettings'); // Initialize translations
   const { toast } = useToast();
   const [isOpen, setIsOpen] = React.useState(false);
+
+   // Define Zod schema dynamically based on translations
+   const formSchema = useMemo(() => z.object({
+    systolic: z.coerce.number().min(1, { message: t('systolicRequired') }).max(300),
+    diastolic: z.coerce.number().min(1, { message: t('diastolicRequired') }).max(200),
+    heartRate: z.coerce.number().min(1, { message: t('heartRateRequired') }).max(250),
+   }), [t]);
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -63,8 +67,8 @@ export function ThresholdSettings({ thresholds, onUpdateThresholds }: ThresholdS
     onUpdateThresholds(newThresholds);
     setIsOpen(false); // Close dialog on save
     toast({
-      title: 'Thresholds Updated',
-      description: `Systolic: ${values.systolic}, Diastolic: ${values.diastolic}, Heart Rate: ${values.heartRate}`,
+      title: t('updateSuccessTitle'),
+      description: `${t('systolicLabel')}: ${values.systolic}, ${t('diastolicLabel')}: ${values.diastolic}, ${t('heartRateLabel')}: ${values.heartRate}`,
     });
   }
 
@@ -72,14 +76,14 @@ export function ThresholdSettings({ thresholds, onUpdateThresholds }: ThresholdS
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">
-          <Settings className="mr-2 h-4 w-4" /> Thresholds
+          <Settings className="mr-2 h-4 w-4" /> {t('buttonText')}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Set Thresholds</DialogTitle>
+          <DialogTitle>{t('dialogTitle')}</DialogTitle>
           <DialogDescription>
-            Set the values above which readings will be highlighted.
+            {t('dialogDescription')}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -89,7 +93,7 @@ export function ThresholdSettings({ thresholds, onUpdateThresholds }: ThresholdS
                 name="systolic"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center"><Droplet className="mr-1 h-4 w-4 text-muted-foreground" /> Systolic (mmHg)</FormLabel>
+                    <FormLabel className="flex items-center"><Droplet className="mr-1 h-4 w-4 text-muted-foreground" /> {t('systolicLabel')}</FormLabel>
                     <FormControl>
                       <Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} />
                     </FormControl>
@@ -102,7 +106,7 @@ export function ThresholdSettings({ thresholds, onUpdateThresholds }: ThresholdS
                 name="diastolic"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center"><Droplet className="mr-1 h-4 w-4 text-muted-foreground"/> Diastolic (mmHg)</FormLabel>
+                    <FormLabel className="flex items-center"><Droplet className="mr-1 h-4 w-4 text-muted-foreground"/> {t('diastolicLabel')}</FormLabel>
                     <FormControl>
                      <Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} />
                     </FormControl>
@@ -115,7 +119,7 @@ export function ThresholdSettings({ thresholds, onUpdateThresholds }: ThresholdS
                 name="heartRate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center"><HeartPulse className="mr-1 h-4 w-4 text-muted-foreground" /> Heart Rate (BPM)</FormLabel>
+                    <FormLabel className="flex items-center"><HeartPulse className="mr-1 h-4 w-4 text-muted-foreground" /> {t('heartRateLabel')}</FormLabel>
                     <FormControl>
                       <Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} />
                     </FormControl>
@@ -125,7 +129,7 @@ export function ThresholdSettings({ thresholds, onUpdateThresholds }: ThresholdS
               />
             <DialogFooter>
               <Button type="submit">
-                 <Save className="mr-2 h-4 w-4" /> Save Changes
+                 <Save className="mr-2 h-4 w-4" /> {t('saveButton')}
               </Button>
             </DialogFooter>
           </form>

@@ -1,0 +1,63 @@
+{
+  "Metadata": {
+    "title": "KalpAtış Merkezi",
+    "description": "Kan basıncı ve kalp atış hızı ölçümlerinizi takip edin."
+  },
+  "HomePage": {
+    "title": "KalpAtış Merkezi",
+    "subtitle": "Kişisel kan basıncı ve kalp atış hızı takipçiniz."
+  },
+  "RecordForm": {
+    "title": "Yeni Kayıt Ekle",
+    "systolicLabel": "Sistolik (mmHg)",
+    "systolicPlaceholder": "örn. 120",
+    "diastolicLabel": "Diyastolik (mmHg)",
+    "diastolicPlaceholder": "örn. 80",
+    "heartRateLabel": "Kalp Hızı (BPM)",
+    "heartRatePlaceholder": "örn. 70",
+    "timestampLabel": "Tarih ve Saat",
+    "pickDateTime": "Bir tarih ve saat seçin",
+    "timeLabel": "Saat",
+    "saveButton": "Kaydı Kaydet",
+    "systolicRequired": "Sistolik basınç gerekli.",
+    "diastolicRequired": "Diyastolik basınç gerekli.",
+    "heartRateRequired": "Kalp atış hızı gerekli.",
+    "timestampRequired": "Bir tarih ve saat gerekli.",
+    "saveSuccessTitle": "Kayıt Kaydedildi",
+    "saveErrorTitle": "Hata",
+    "saveErrorDescription": "Lütfen geçerli bir tarih ve saat seçin."
+  },
+  "RecordList": {
+    "noRecords": "Kayıt bulunamadı. Başlamak için yeni bir kayıt ekleyin!",
+    "highBadge": "Yüksek",
+    "deleteButtonLabel": "Kaydı sil",
+    "deleteSuccessTitle": "Kayıt Silindi",
+    "deleteSuccessDescription": "Kayıt başarıyla kaldırıldı.",
+    "unitMmhg": "mmHg",
+    "unitBpm": "BPM"
+  },
+  "FilterControls": {
+    "title": "Kayıtları Filtrele",
+    "thresholdSwitchLabel": "Sadece Eşik Üstünü Göster",
+    "startDateButton": "Başlangıç Tarihi",
+    "endDateButton": "Bitiş Tarihi",
+    "clearButton": "Filtreleri Temizle"
+  },
+  "ThresholdSettings": {
+    "buttonText": "Eşikler",
+    "dialogTitle": "Eşikleri Ayarla",
+    "dialogDescription": "Okumaların vurgulanacağı değerleri ayarlayın.",
+    "systolicLabel": "Sistolik (mmHg)",
+    "diastolicLabel": "Diyastolik (mmHg)",
+    "heartRateLabel": "Kalp Hızı (BPM)",
+    "saveButton": "Değişiklikleri Kaydet",
+    "systolicRequired": "Sistolik eşik gerekli.",
+    "diastolicRequired": "Diyastolik eşik gerekli.",
+    "heartRateRequired": "Kalp atış hızı eşiği gerekli.",
+    "updateSuccessTitle": "Eşikler Güncellendi"
+  },
+  "LocaleSwitcher": {
+    "placeholder": "Dil seçin",
+    "locale": "{locale, select, en {English} tr {Türkçe} other {Bilinmeyen}}"
+  }
+}

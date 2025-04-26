@@ -3,6 +3,7 @@
 import React from 'react';
 import { format, parseISO } from 'date-fns';
 import { Trash2, HeartPulse, Droplet } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,6 +18,8 @@ interface RecordListProps {
 }
 
 export function RecordList({ records, thresholds, onDelete }: RecordListProps) {
+  const t = useTranslations('RecordList');
+
   const isOverThreshold = (record: RecordData) => {
     return (
       record.systolic > thresholds.systolic ||
@@ -28,7 +31,7 @@ export function RecordList({ records, thresholds, onDelete }: RecordListProps) {
   if (!records || records.length === 0) {
     return (
       <div className="text-center text-muted-foreground mt-8">
-        No records found. Add a new record to get started!
+        {t('noRecords')}
       </div>
     );
   }
@@ -44,23 +47,23 @@ export function RecordList({ records, thresholds, onDelete }: RecordListProps) {
                  <CardTitle className="text-lg font-medium flex items-center gap-2">
                     <Droplet className="h-5 w-5 text-muted-foreground" />
                     {record.systolic} / {record.diastolic}
-                    <span className="text-sm font-normal text-muted-foreground ml-1">mmHg</span>
+                    <span className="text-sm font-normal text-muted-foreground ml-1">{t('unitMmhg')}</span>
                  </CardTitle>
                  <CardDescription className="flex items-center gap-1 text-sm">
                    <HeartPulse className="h-4 w-4 text-muted-foreground" />
-                   {record.heartRate} BPM
+                   {record.heartRate} {t('unitBpm')}
                  </CardDescription>
               </div>
                <div className="flex items-center gap-2">
                  {overThreshold && (
-                   <Badge variant="destructive">High</Badge>
+                   <Badge variant="destructive">{t('highBadge')}</Badge>
                  )}
                  <Button
                    variant="ghost"
                    size="icon"
                    className="text-muted-foreground hover:text-destructive"
                    onClick={() => onDelete(record.id)}
-                   aria-label="Delete record"
+                   aria-label={t('deleteButtonLabel')}
                  >
                    <Trash2 className="h-4 w-4" />
                  </Button>
