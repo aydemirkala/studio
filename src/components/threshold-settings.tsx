@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react'; // Import useMemo
+import * as React from 'react'; // Import React using * as React
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -40,7 +40,7 @@ export function ThresholdSettings({ thresholds, onUpdateThresholds }: ThresholdS
   const [isOpen, setIsOpen] = React.useState(false);
 
    // Define Zod schema dynamically based on translations
-   const formSchema = useMemo(() => z.object({
+   const formSchema = React.useMemo(() => z.object({
     systolic: z.coerce.number().min(1, { message: t('systolicRequired') }).max(300),
     diastolic: z.coerce.number().min(1, { message: t('diastolicRequired') }).max(200),
     heartRate: z.coerce.number().min(1, { message: t('heartRateRequired') }).max(250),

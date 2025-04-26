@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import * as React from 'react';
 import { format, isValid } from 'date-fns';
 import { Calendar as CalendarIcon, Filter, RefreshCcw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -33,8 +33,8 @@ export function FilterControls({
   onClearFilters,
 }: FilterControlsProps) {
     const t = useTranslations('FilterControls');
-    const [isStartCalendarOpen, setIsStartCalendarOpen] = useState(false);
-    const [isEndCalendarOpen, setIsEndCalendarOpen] = useState(false);
+    const [isStartCalendarOpen, setIsStartCalendarOpen] = React.useState(false);
+    const [isEndCalendarOpen, setIsEndCalendarOpen] = React.useState(false);
 
     const handleClear = () => {
         onClearFilters();

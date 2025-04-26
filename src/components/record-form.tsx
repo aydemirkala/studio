@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import * as React from 'react';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon, HeartPulse, Droplet, Activity } from 'lucide-react';
 import { z } from 'zod';
@@ -38,7 +38,7 @@ export function RecordForm({ onSave }: RecordFormProps) {
   const pathname = usePathname();
 
   // Define Zod schema dynamically based on translations
-  const formSchema = useMemo(() => z.object({
+  const formSchema = React.useMemo(() => z.object({
     systolic: z.coerce.number().min(1, { message: t('systolicRequired') }).max(300),
     diastolic: z.coerce.number().min(1, { message: t('diastolicRequired') }).max(200),
     heartRate: z.coerce.number().min(1, { message: t('heartRateRequired') }).max(250),
@@ -58,8 +58,8 @@ export function RecordForm({ onSave }: RecordFormProps) {
 
     // Effect to set initial timestamp, preventing hydration mismatch
     // and ensuring the date logic runs client-side
-    const [isClient, setIsClient] = useState(false);
-    useEffect(() => {
+    const [isClient, setIsClient] = React.useState(false);
+    React.useEffect(() => {
       setIsClient(true);
       if (!form.getValues('timestamp')) {
         form.setValue('timestamp', new Date(), { shouldValidate: false, shouldDirty: false });
@@ -69,9 +69,9 @@ export function RecordForm({ onSave }: RecordFormProps) {
 
 
    // Popover state for date picker
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = React.useState(false);
 
-    const handleDateSelect = useCallback((date: Date | undefined) => {
+    const handleDateSelect = React.useCallback((date: Date | undefined) => {
         if (date) {
             const currentTimestamp = form.getValues('timestamp') || new Date();
             // Keep existing time if user only selects a date
@@ -85,7 +85,7 @@ export function RecordForm({ onSave }: RecordFormProps) {
         }
     }, [form]);
 
-     const handleTimeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+     const handleTimeChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const [hours, minutes] = e.target.value.split(':').map(Number);
         const currentTimestamp = form.getValues('timestamp') || new Date(); // Use field value or new Date if undefined
         const newDate = new Date(currentTimestamp); // Clone to avoid mutation

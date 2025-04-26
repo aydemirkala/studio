@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import * as React from 'react';
 import { parseISO, startOfDay, endOfDay } from 'date-fns';
 import { Heart } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -28,17 +28,17 @@ export default function Home() {
     'bp_thresholds',
     DEFAULT_THRESHOLDS
   );
-  const [filterEnabled, setFilterEnabled] = useState<boolean>(false);
-  const [startTime, setStartTime] = useState<Date | null>(null);
-  const [endTime, setEndTime] = useState<Date | null>(null);
+  const [filterEnabled, setFilterEnabled] = React.useState<boolean>(false);
+  const [startTime, setStartTime] = React.useState<Date | null>(null);
+  const [endTime, setEndTime] = React.useState<Date | null>(null);
   const { toast } = useToast();
 
-  const handleSaveRecord = useCallback((newRecord: RecordData) => {
+  const handleSaveRecord = React.useCallback((newRecord: RecordData) => {
     setRecords((prevRecords) => [newRecord, ...prevRecords]);
     // Note: RecordForm handles its own success toast
   }, [setRecords]);
 
-  const handleDeleteRecord = useCallback((id: string) => {
+  const handleDeleteRecord = React.useCallback((id: string) => {
     setRecords((prevRecords) => prevRecords.filter((record) => record.id !== id));
     toast({
         title: tToast('deleteSuccessTitle'),
@@ -47,18 +47,18 @@ export default function Home() {
     });
   }, [setRecords, toast, tToast]);
 
-  const handleUpdateThresholds = useCallback((newThresholds: Thresholds) => {
+  const handleUpdateThresholds = React.useCallback((newThresholds: Thresholds) => {
     setThresholds(newThresholds);
     // Note: ThresholdSettings handles its own success toast
   }, [setThresholds]);
 
-   const handleClearFilters = useCallback(() => {
+   const handleClearFilters = React.useCallback(() => {
     setFilterEnabled(false);
     setStartTime(null);
     setEndTime(null);
   }, []);
 
-  const filteredRecords = useMemo(() => {
+  const filteredRecords = React.useMemo(() => {
     let tempRecords = [...records];
 
     // Sort records by timestamp descending (most recent first)
