@@ -14,9 +14,9 @@ import type { RecordData, Thresholds } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 
 const DEFAULT_THRESHOLDS: Thresholds = {
-  systolic: 130,
-  diastolic: 80,
-  heartRate: 100,
+  systolic: 130, // Default threshold, validation ensures it's within 50-250
+  diastolic: 80,  // Default threshold, validation ensures it's within 30-200
+  heartRate: 100, // Default threshold, validation ensures it's within 30-250
 };
 
 export default function Home() {

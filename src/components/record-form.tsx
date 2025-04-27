@@ -31,6 +31,29 @@ interface RecordFormProps {
   onSave: (record: RecordData) => void;
 }
 
+// Helper function to parse BP input, handling comma/decimal
+const parseBloodPressureInput = (val: string, ctx: z.RefinementCtx): number | typeof z.NEVER => {
+    if (val === null || val === undefined || val === '') {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Required", // Use a generic required message or get from translations
+        });
+        return z.NEVER;
+    }
+    const cleanedVal = val.toString().replace(/[.,]/g, '');
+    const num = parseInt(cleanedVal, 10);
+    if (isNaN(num)) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.invalid_type,
+            expected: 'number',
+            received: 'nan',
+            message: 'Invalid number format', // Or use translation
+        });
+        return z.NEVER;
+    }
+    return num;
+};
+
 export function RecordForm({ onSave }: RecordFormProps) {
   const t = useTranslations('RecordForm');
   const { toast } = useToast();
@@ -39,9 +62,13 @@ export function RecordForm({ onSave }: RecordFormProps) {
 
   // Define Zod schema dynamically based on translations
   const formSchema = React.useMemo(() => z.object({
-    systolic: z.coerce.number().min(1, { message: t('systolicRequired') }).max(300),
-    diastolic: z.coerce.number().min(1, { message: t('diastolicRequired') }).max(200),
-    heartRate: z.coerce.number().min(1, { message: t('heartRateRequired') }).max(250),
+    systolic: z.string()
+      .transform((val, ctx) => parseBloodPressureInput(val, ctx))
+      .pipe(z.number().min(50, { message: t('systolicRequired') + ' (Min 50)' }).max(250, { message: 'Max 250' })), // Added min/max
+    diastolic: z.string()
+      .transform((val, ctx) => parseBloodPressureInput(val, ctx))
+      .pipe(z.number().min(30, { message: t('diastolicRequired') + ' (Min 30)' }).max(200, { message: 'Max 200' })), // Added min/max
+    heartRate: z.coerce.number().min(30, { message: t('heartRateRequired') + ' (Min 30)' }).max(250, { message: 'Max 250' }), // Updated min/max
     timestamp: z.date({ required_error: t('timestampRequired') }),
   }), [t]);
 
@@ -49,10 +76,11 @@ export function RecordForm({ onSave }: RecordFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      systolic: undefined,
-      diastolic: undefined,
-      heartRate: undefined,
-      timestamp: undefined,
+      // Use strings for initial values to match the schema base type
+      systolic: '',
+      diastolic: '',
+      heartRate: undefined, // Keep as undefined for coerce.number
+      timestamp: new Date(), // Keep initial date for better UX
     },
   });
 
@@ -61,11 +89,9 @@ export function RecordForm({ onSave }: RecordFormProps) {
     const [isClient, setIsClient] = React.useState(false);
     React.useEffect(() => {
       setIsClient(true);
-      if (!form.getValues('timestamp')) {
-        form.setValue('timestamp', new Date(), { shouldValidate: false, shouldDirty: false });
-      }
-      // Only run once on mount
-    }, [form]); // Add form dependency
+      // No need to set timestamp here as defaultValues handles it
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Run only once on mount
 
 
    // Popover state for date picker
@@ -81,7 +107,8 @@ export function RecordForm({ onSave }: RecordFormProps) {
             form.setValue('timestamp', date, { shouldValidate: true }); // Validate on change
             setIsCalendarOpen(false); // Close popover after selecting
         } else {
-            form.setValue('timestamp', undefined, { shouldValidate: true }); // Handle clearing the date and validate
+            // Allow clearing the date, Zod will handle validation
+            form.setValue('timestamp', undefined as any, { shouldValidate: true }); // Handle clearing the date and validate
         }
     }, [form]);
 
@@ -95,7 +122,7 @@ export function RecordForm({ onSave }: RecordFormProps) {
     }, [form]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Ensure timestamp has a value (already handled by Zod validation)
+    // Values are already transformed and validated numbers here
     const newRecord: RecordData = {
       id: Date.now().toString(),
       systolic: values.systolic,
@@ -106,8 +133,8 @@ export function RecordForm({ onSave }: RecordFormProps) {
     onSave(newRecord);
 
     form.reset({
-        systolic: undefined,
-        diastolic: undefined,
+        systolic: '', // Reset to empty strings
+        diastolic: '',
         heartRate: undefined,
         timestamp: new Date(), // Reset to current time for next entry
     });
@@ -140,7 +167,14 @@ export function RecordForm({ onSave }: RecordFormProps) {
                   <FormItem>
                     <FormLabel className="flex items-center"><Droplet className="mr-1 h-4 w-4 text-muted-foreground" /> {t('systolicLabel')}</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder={t('systolicPlaceholder')} {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : e.target.valueAsNumber)} value={field.value ?? ''}/>
+                      {/* Use type="text" and inputMode="numeric" for better BP input */}
+                      <Input
+                        type="text"
+                        inputMode="numeric" // Suggest numeric keyboard on mobile
+                        placeholder={t('systolicPlaceholder')}
+                        {...field} // Pass the field props directly
+                        // value is already handled by field
+                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -153,7 +187,14 @@ export function RecordForm({ onSave }: RecordFormProps) {
                   <FormItem>
                     <FormLabel className="flex items-center"><Droplet className="mr-1 h-4 w-4 text-muted-foreground"/> {t('diastolicLabel')}</FormLabel>
                     <FormControl>
-                     <Input type="number" placeholder={t('diastolicPlaceholder')} {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : e.target.valueAsNumber)} value={field.value ?? ''} />
+                     {/* Use type="text" and inputMode="numeric" for better BP input */}
+                     <Input
+                       type="text"
+                       inputMode="numeric" // Suggest numeric keyboard on mobile
+                       placeholder={t('diastolicPlaceholder')}
+                       {...field} // Pass the field props directly
+                       // value is already handled by field
+                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -166,7 +207,14 @@ export function RecordForm({ onSave }: RecordFormProps) {
                   <FormItem>
                     <FormLabel className="flex items-center"><HeartPulse className="mr-1 h-4 w-4 text-muted-foreground" /> {t('heartRateLabel')}</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder={t('heartRatePlaceholder')} {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : e.target.valueAsNumber)} value={field.value ?? ''} />
+                      {/* Keep type="number" for heart rate */}
+                      <Input
+                        type="number"
+                        placeholder={t('heartRatePlaceholder')}
+                        {...field}
+                        onChange={e => field.onChange(e.target.value === '' ? undefined : e.target.valueAsNumber)}
+                        value={field.value ?? ''}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

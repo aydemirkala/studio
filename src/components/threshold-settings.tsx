@@ -41,9 +41,9 @@ export function ThresholdSettings({ thresholds, onUpdateThresholds }: ThresholdS
 
    // Define Zod schema dynamically based on translations
    const formSchema = React.useMemo(() => z.object({
-    systolic: z.coerce.number().min(1, { message: t('systolicRequired') }).max(300),
-    diastolic: z.coerce.number().min(1, { message: t('diastolicRequired') }).max(200),
-    heartRate: z.coerce.number().min(1, { message: t('heartRateRequired') }).max(250),
+    systolic: z.coerce.number().min(50, { message: t('systolicRequired') + ' (Min 50)' }).max(250, { message: 'Max 250' }), // Updated min/max
+    diastolic: z.coerce.number().min(30, { message: t('diastolicRequired') + ' (Min 30)' }).max(200, { message: 'Max 200' }), // Updated min/max
+    heartRate: z.coerce.number().min(30, { message: t('heartRateRequired') + ' (Min 30)' }).max(250, { message: 'Max 250' }), // Updated min/max
    }), [t]);
 
 
@@ -95,7 +95,7 @@ export function ThresholdSettings({ thresholds, onUpdateThresholds }: ThresholdS
                   <FormItem>
                     <FormLabel className="flex items-center"><Droplet className="mr-1 h-4 w-4 text-muted-foreground" /> {t('systolicLabel')}</FormLabel>
                     <FormControl>
-                      <Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} />
+                      <Input type="number" {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : e.target.valueAsNumber)} value={field.value ?? ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -108,7 +108,7 @@ export function ThresholdSettings({ thresholds, onUpdateThresholds }: ThresholdS
                   <FormItem>
                     <FormLabel className="flex items-center"><Droplet className="mr-1 h-4 w-4 text-muted-foreground"/> {t('diastolicLabel')}</FormLabel>
                     <FormControl>
-                     <Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} />
+                     <Input type="number" {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : e.target.valueAsNumber)} value={field.value ?? ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -121,7 +121,7 @@ export function ThresholdSettings({ thresholds, onUpdateThresholds }: ThresholdS
                   <FormItem>
                     <FormLabel className="flex items-center"><HeartPulse className="mr-1 h-4 w-4 text-muted-foreground" /> {t('heartRateLabel')}</FormLabel>
                     <FormControl>
-                      <Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} />
+                      <Input type="number" {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : e.target.valueAsNumber)} value={field.value ?? ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
