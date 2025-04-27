@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -80,7 +81,10 @@ export default function Home() {
         (record) =>
           record.systolic > thresholds.systolic ||
           record.diastolic > thresholds.diastolic ||
-          record.heartRate > thresholds.heartRate
+          // Only check heart rate if it exists and is a number
+          (record.heartRate !== null &&
+           typeof record.heartRate === 'number' &&
+           record.heartRate > thresholds.heartRate)
       );
     }
 

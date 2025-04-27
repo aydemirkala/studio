@@ -2,7 +2,7 @@ export interface RecordData {
   id: string;
   systolic: number;
   diastolic: number;
-  heartRate: number;
+  heartRate: number | null; // Make heartRate optional
   timestamp: string; // ISO string format
 }
 

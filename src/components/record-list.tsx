@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -19,14 +20,27 @@ interface RecordListProps {
 
 export function RecordList({ records, thresholds, onDelete }: RecordListProps) {
   const t = useTranslations('RecordList');
+    const [isClient, setIsClient] = React.useState(false);
+
+    React.useEffect(() => {
+      setIsClient(true);
+    }, []);
+
 
   const isOverThreshold = (record: RecordData) => {
-    return (
-      record.systolic > thresholds.systolic ||
-      record.diastolic > thresholds.diastolic ||
-      record.heartRate > thresholds.heartRate
-    );
+    const systolicHigh = record.systolic > thresholds.systolic;
+    const diastolicHigh = record.diastolic > thresholds.diastolic;
+    // Only check heart rate threshold if heart rate exists and is a number
+    const heartRateHigh = record.heartRate !== null && typeof record.heartRate === 'number' && record.heartRate > thresholds.heartRate;
+
+    return systolicHigh || diastolicHigh || heartRateHigh;
   };
+
+  if (!isClient) {
+      // Render a loading state or nothing on the server to avoid hydration issues
+      return null;
+  }
+
 
   if (!records || records.length === 0) {
     return (
@@ -49,10 +63,13 @@ export function RecordList({ records, thresholds, onDelete }: RecordListProps) {
                     {record.systolic} / {record.diastolic}
                     <span className="text-sm font-normal text-muted-foreground ml-1">{t('unitMmhg')}</span>
                  </CardTitle>
-                 <CardDescription className="flex items-center gap-1 text-sm">
-                   <HeartPulse className="h-4 w-4 text-muted-foreground" />
-                   {record.heartRate} {t('unitBpm')}
-                 </CardDescription>
+                 {/* Conditionally render Heart Rate */}
+                 {record.heartRate !== null && typeof record.heartRate === 'number' && (
+                     <CardDescription className="flex items-center gap-1 text-sm">
+                       <HeartPulse className="h-4 w-4 text-muted-foreground" />
+                       {record.heartRate} {t('unitBpm')}
+                     </CardDescription>
+                 )}
               </div>
                <div className="flex items-center gap-2">
                  {overThreshold && (
